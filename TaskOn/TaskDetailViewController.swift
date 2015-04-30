@@ -8,12 +8,28 @@
 
 import UIKit
 
+@objc protocol TaskDetailViewControllerDelegate {
+    optional func taskDetailEdited()
+}
+
 class TaskDetailViewController: UIViewController {
 
+    var detailTaskModel: TaskModel!
+    
+    @IBOutlet weak var subtaskTextField: UITextField!
+    @IBOutlet weak var taskTextField: UITextField!
+    @IBOutlet weak var dueDatePicker: UIDatePicker!
+    
+    var delegate:TaskDetailViewControllerDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
+        self.taskTextField.text = detailTaskModel.task
+        self.subtaskTextField.text = detailTaskModel.subtask
+        self.dueDatePicker.date = detailTaskModel.date
     }
 
     override func didReceiveMemoryWarning() {
@@ -21,15 +37,23 @@ class TaskDetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    @IBAction func cancelButtonTapped(sender: UIBarButtonItem) {
+        self.navigationController?.popViewControllerAnimated(true)
     }
-    */
+
+    @IBAction func doneBarButtonItemPressed(sender: UIBarButtonItem) {
+        
+        let appDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        
+        detailTaskModel.task = taskTextField.text
+        detailTaskModel.subtask = subtaskTextField.text
+        detailTaskModel.date = dueDatePicker.date
+        detailTaskModel.isCompleted = detailTaskModel.isCompleted
+        
+        appDelegate.saveContext()
+        
+        self.navigationController?.popViewControllerAnimated(true)
+        delegate?.taskDetailEdited!()
+    }
 
 }
